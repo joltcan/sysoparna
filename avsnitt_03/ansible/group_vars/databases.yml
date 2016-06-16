@@ -1,0 +1,7 @@
+---
+packages:
+    - libdbd-pg-perl
+    - pbzip2
+    - pgbouncer
+    - postgresql
+

@@ -1,0 +1,16 @@
+---
+common_packages:
+  - bash-completion
+  - bind9-host
+  - bsd-mailx
+  - bzip2
+  - collectd-core
+  - curl
+  - gzip
+  - nmon
+  - postfix
+  - screen
+  - sudo
+  - unzip
+  - vim
+

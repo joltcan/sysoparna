@@ -1,0 +1,43 @@
+---
+#- name: make sure the system encoding is {{ locale }}
+#  template: src=locale dest=/etc/default/locale
+#            owner=root group=root mode=644
+
+#- name: ensure apt cache is up to date
+#  apt: update_cache=yes
+
+- name: install packages
+  apt: pkg='{{ item }}'
+  with_items: common_packages
+
+- name: create users
+  user: name='{{ item.name }}'
+  with_items: users
+
+- name: Make sure ssh for root uses pubkey only
+  lineinfile: dest=/etc/ssh/sshd_config regexp="^PermitRootLogin" line="PermitRootLogin without-password" validate='/usr/sbin/sshd -t -f %s'
+  notify: restart ssh
+
+- name: copy motd
+  copy: src=motd-gen.sh dest=/usr/local/bin owner=root group=root mode=0755 
+
+- name: copy fw
+  copy: src=fw/fw dest=/usr/local/bin owner=root group=root mode=0755 
+- name: copy vifw
+  copy: src=fw/vifw dest=/usr/local/bin owner=root group=root mode=0755 
+- name: copy shfw
+  copy: src=fw/shfw dest=/usr/local/bin owner=root group=root mode=0755 
+
+- name: run motd-gen
+  shell: /usr/local/bin/motd-gen.sh
+
+- name: main | uninstall apache packages
+  apt: >
+    pkg = '{{ item }} '
+    state=absent
+    purge=yes
+    force=yes
+  with_items:
+    - apache2*
+    - sendmail*
+  sudo: yes

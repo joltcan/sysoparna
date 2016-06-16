@@ -1,0 +1,7 @@
+---
+- name: reload nginx
+  service: name=nginx state=restarted
+- name: restart ssh
+  service: name=ssh state=running
+- name: restart procps
+  service: name=procps state=start

@@ -1,0 +1,30 @@
+---
+# I use the extra-var 'target' here instead of hosts: all, so that if I forget
+# -l for limit, I won't run it on all hosts by mistake.
+#
+# Usage: ansible-playbook update.yml --extra-vars "target=somehostlimit" (or all)
+#
+
+- hosts: '{{ target }}' 
+
+  tasks:
+    - name: Update Packages (Debian)
+      apt: upgrade=safe
+           update_cache=yes
+           cache_valid_time=3600
+      when: ansible_os_family == "Debian" 
+
+    - name: Check if reboot is required
+      stat: path=/var/run/reboot-required
+      register: stat
+      
+    - name: Reboot needed
+      debug:
+        msg: "Reboot needed on {{ ansible_hostname }}"
+      when: stat.stat.exists          
+
+    - name: Update Packages(RedHat)
+      yum: update_cache=yes
+           name=*
+           state=latest
+      when: ansible_os_family == "RedHat"

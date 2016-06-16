@@ -1,0 +1,4 @@
+---
+packages:
+  - libwww-perl
+  - nginx

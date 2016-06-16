@@ -1,0 +1,22 @@
+---
+packages:
+  - nginx
+  - libwww-perl
+  - geoip-bin
+  - geoip-database-contrib
+  - php5-apcu
+  - php5-cli
+  - php5-common
+  - php5-curl
+  - php5-fpm
+  - php5-gd
+  - php5-geoip
+  - php5-imap
+  - php5-json
+  - php5-pgsql
+  - php5-readline
+  - postgresql-client-common
+
+users:
+  - name: admin
+

@@ -1,0 +1,24 @@
+---
+#- name: ensure apt cache is up to date
+#  apt: update_cache=yes
+
+- name: install packages (set in group_vars)
+  apt: pkg={{ item }}
+  with_items: packages
+
+- name: copy nginx-status
+  template: src=status.conf dest=/etc/nginx/conf.d mode=644
+  notify: reload nginx
+
+- name: copy sysctl config
+  copy: src=sysctl-proxy.conf dest=/etc/sysctl.d/sysctl-proxy.conf owner=root group=root mode=0644 force=no
+  notify: 
+    - restart procps
+
+- name: copy limits 
+  copy: src=limits-all.conf dest=/etc/security/limits.d/limits-all.conf owner=root group=root mode=0644 force=no
+
+- name: copy site-down script
+  copy: src=site-down.sh dest=/usr/local/bin/site-down.sh owner=root group=root mode=0755
+- name: copy site-up script
+  copy: src=site-up.sh dest=/usr/local/bin/site-up.sh owner=root group=root mode=0755

@@ -1,0 +1,4 @@
+---
+# defaults file for common
+locale: "en_US.UTF-8"
+projects_directory: /srv/www

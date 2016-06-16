@@ -1,0 +1,5 @@
+---
+# handlers file for common
+- name: restart ssh
+  service: name=ssh state=running
+

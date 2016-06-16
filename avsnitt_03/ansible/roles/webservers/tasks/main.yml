@@ -1,0 +1,46 @@
+---
+#- name: ensure apt cache is up to date
+#  apt: update_cache=yes
+
+- name: install packages
+  apt: pkg={{ item }}
+  with_items: packages
+
+- name: create users
+  user: name={{ item.name }}
+  with_items: users
+
+- name: Add admin rights to sudoers
+  lineinfile: dest=/etc/sudoers state=present regexp='^admin ALL\=' line='admin ALL=NOPASSWD:/etc/init.d/nginx,/sbin/reboot,/etc/init.d/php5-fpm' validate='visudo -cf %s'
+
+- name: change umask for www
+  #lineinfile: dest=/etc/profile line="#(rwxrwxr-x, rw-rw-r)"
+  lineinfile: dest=/etc/profile line="umask 0002"
+
+- name: create srv directory
+  file: path=/srv/www state=directory mode="4775" owner=admin recurse=yes
+
+- name: copy sysctl config
+  copy: src=sysctl-webservers.conf dest=/etc/sysctl.d/sysctl-webservers.conf owner=root group=root mode=0644 force=no
+  notify: 
+    - restart procps
+
+- name: copy limits
+  copy: src=limits-all.conf dest=/etc/security/limits.d/limits-all.conf owner=root group=root mode=0644 force=no
+
+- file: path=/etc/php5/fpm/pool.d state=directory mode=0755 recurse=yes
+
+- name: copy php-fpm conf
+  copy: src=fpm/php.ini dest=/etc/php5/fpm/php.ini owner=root group=root mode=0644 force=no
+- name: copy php-fpm pool conf
+  copy: src=fpm/www.conf dest=/etc/php5/fpm/pool.d/www.conf owner=root group=root mode=0644 force=no
+  notify:
+      - restart php5-fpm
+
+- file: path=/etc/nginx state=directory mode=0755 recurse=yes
+
+- name: copy nginx php include conf
+  copy: src=php-fpm.conf dest=/etc/nginx/php-fpm.conf owner=root group=root mode=0644 force=no
+- name: copy nginx conf
+  copy: src=nginx.conf dest=/etc/nginx/nginx.conf.new owner=root group=root mode=0644 force=no
+

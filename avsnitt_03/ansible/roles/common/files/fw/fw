@@ -1,0 +1,11 @@
+#!/bin/bash
+NOW=`date +"%Y_%m_%d__%H-%M"`
+[ -d /home/backup/ ] || mkdir /home/backup
+cp /etc/network/firewall /home/backup/firewall-$NOW
+cp /etc/network/firewall-6 /home/backup/firewall-6-$NOW
+echo -n "Applying IPv4 rules:"
+sh /etc/network/firewall
+echo " done."
+echo -n "Applying IPv6 rules:"
+sh /etc/network/firewall-6
+echo " done."
