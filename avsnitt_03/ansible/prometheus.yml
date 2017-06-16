@@ -1,0 +1,6 @@
+- hosts: prometheus
+  vars:
+    telegraf_group: "{{ groups['telegraf'] }}"
+  roles:
+    - role: docker/base
+    - role: prometheus

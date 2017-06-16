@@ -1,0 +1,13 @@
+{% set comma = joiner(",") -%}
+[
+  {
+    "targets": [
+    {% for host in telegraf_group %}
+      {% if 'mgmt' in host -%}
+      "management:9126"{% else %}"{{ host }}:9126"
+      {%- endif %}
+      {%- if not loop.last %},{% endif %}
+    {% endfor %}
+    ]
+  }
+]

@@ -1,0 +1,75 @@
+---
+- name: Create config
+  become: yes
+  template:
+    src: prometheus.yml.j2
+    dest: /opt/prometheus/prometheus.yml
+  tags:
+    - setup
+    - config
+
+- name: Create targets directory
+  become: yes
+  file:
+    path: /opt/prometheus/targets
+    state: directory
+  tags:
+    - setup
+
+- name: Create rules directory
+  become: yes
+  file:
+    path: /opt/prometheus/rules
+    state: directory
+  tags:
+    - setup
+
+- name: Create telegraf targets config
+  template:
+    src: telegraf_target.conf.j2
+    dest: /opt/prometheus/targets/telegrafs.json
+  tags:
+    - config
+
+- name: Signal Prometheus to reload config
+  uri:
+    url: http://localhost:9090/-/reload
+    method: POST
+  tags:
+    - config
+
+- name: Stop prometheus dockers
+  become: yes
+  docker_container:
+    name: "{{ item.name }}"
+    image: "{{ item.image }}"
+    state: stopped
+  with_items:
+    - { name: prometheus, image: prom/prometheus }
+  tags:
+    - stop
+    - restart
+
+- name: Start prometheus docker
+  become: yes
+  docker_container:
+    name: prometheus
+    image: "prom/prometheus:{{ prometheus.version }}"
+    hostname: "{{ inventory_hostname_short }}-prometheus"
+    state: started
+    restart_policy: on-failure
+    ports:
+      - "9090:9090"
+    volumes:
+      - /opt/prometheus/data:/prometheus
+      - /opt/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+      - /opt/prometheus/targets:/etc/prometheus/targets
+    command:
+      - -config.file=/etc/prometheus/prometheus.yml
+      - -storage.local.path=/prometheus
+      - -web.console.libraries=/usr/share/prometheus/console_libraries
+      - -web.console.templates=/usr/share/prometheus/consoles
+      - -web.external-url=https://mgmt.int.flattr.net/prometheus
+  tags:
+    - start
+    - restart

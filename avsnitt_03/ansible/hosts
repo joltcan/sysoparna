@@ -42,3 +42,9 @@ atlanta-dbservers
 [boston:children]
 boston-webservers
 boston-dbservers
+
+[prometheus]
+host-prod-01
+
+[telegraf:children]
+webservers
